@@ -12,6 +12,15 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1
 
+      - name: Retarget to .NET 4.8
+        shell: pwsh
+        run: |
+          Get-ChildItem -Recurse *.csproj | ForEach-Object {
+            $content = Get-Content $_.FullName
+            $content = $content -replace '<TargetFrameworkVersion>v4.5</TargetFrameworkVersion>', '<TargetFrameworkVersion>v4.8</TargetFrameworkVersion>'
+            Set-Content $_.FullName $content
+          }
+
       - name: Restore NuGet packages
         run: nuget restore XbfDecompiler.sln
 
@@ -22,4 +31,6 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: XbfDecompiler-Binary
-          path: XbfDecompiler/bin/Release/
+          path: |
+            XbfDecompiler/bin/Release/
+            LibXbf/bin/Release/
